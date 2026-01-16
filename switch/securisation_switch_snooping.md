@@ -1,16 +1,12 @@
-# Sécurisation d'un switch contre le mac spoofing, floodind, DHCP starvation.
+# Sécurisation d'un switch contre le mac spoofing, floodind, DHCP starvation et attaques.
 
-```markdown
-# Sécurisation d'un LAN : Guide Pratique
-
----
 
 ## **1. Introduction**
 Ce guide explique comment sécuriser un LAN contre les attaques courantes (ARP spoofing, DHCP spoofing, DHCP starvation) sur deux environnements :
 - **Switch Cisco 2960**
 - **Linux (Debian/Kali)**
 
----
+
 
 ## **2. Atténuation des attaques sur un Switch Cisco 2960**
 
