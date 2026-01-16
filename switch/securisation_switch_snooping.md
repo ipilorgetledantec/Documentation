@@ -164,10 +164,3 @@ exit
   - Surveiller le trafic avec `tcpdump`.
 
 ---
-```
-
-### **Comment utiliser ce Markdown ?**
-- Copie ce contenu dans un fichier avec l’extension `.md` (par exemple, `securisation_lan.md`).
-- Ouvre-le avec un éditeur Markdown (VS Code, Typora, etc.) pour une meilleure lisibilité.
-
-Tu veux que j’ajoute ou que je précise une section en particulier ? 😊
