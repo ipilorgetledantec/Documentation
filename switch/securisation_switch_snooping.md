@@ -1,5 +1,7 @@
+# Sécurisation d'un switch contre le mac spoofing, floodind, DHCP starvation.
+
 ```markdown
-# Sécurisation d’un LAN : Guide Pratique
+# Sécurisation d'un LAN : Guide Pratique
 
 ---
 
@@ -79,7 +81,7 @@ exit
      }
      ```
 
-2. **Redémarrer l’interface réseau** :
+2. **Redémarrer l'interface réseau** :
    ```bash
    ifdown enp0s3
    ifup enp0s3
@@ -100,13 +102,13 @@ exit
    sudo cat /var/lib/dhcp/dhcpd.leases
    ```
 
-### **3.2. Simulation d’attaques (Kali Linux)**
+### **3.2. Simulation d'attaques (Kali Linux)**
 1. **Configurer le clavier en français** :
    ```bash
    setxkbmap fr
    ```
 
-2. **Installer Yersinia (outil d’attaque)** :
+2. **Installer Yersinia (outil d'attaque)** :
    ```bash
    sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys ED65462EC8D5E4C5
    apt update
@@ -135,7 +137,7 @@ exit
 
 ---
 
-## **4. Schéma de l’infrastructure**
+## **4. Schéma de l'infrastructure**
 ```
 +----------------+       +----------------+       +----------------+
 |   Attaquant    |-------|    Switch      |-------|     Serveur    |
