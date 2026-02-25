@@ -1,0 +1,19 @@
+lors d’une installation “propre” de Windows 11, c'est-à-dire en téléchargeant l’ISO (image du DVD d’installation) directement depuis les serveurs de Microsoft, puis en l’installant avec une clé USB, il est possible d’indiquer une localisation qui n’est pas reconnue par les serveurs de Microsoft et qui n’installe donc pas les logiciels attachés à votre localisation véritable.
+
+windows
+
+En sélectionnant "Anglais (Européen)" Windows n'installera pas de logiciels tiers.
+
+© Les Numériques
+
+Pour ce faire, lors du premier écran de choix de langue, il faut indiquer dans le champ Format horaire et monétaire : “Anglais (Europe)”. Le processus d’installation de Windows indiquera par la suite une erreur qu’il suffit de d’ignorer ; le reste de l’installation poursuivra alors son cours.
+
+windows oobe
+
+Évidemment, l'assistant d'installation est un peu perdu.
+
+Arrivé sur le bureau de Windows 11, vous pourrez ainsi profiter d’un menu Démarrer dénué de toute application préinstallée, qu'il s'agisse de services de SVOD, de messageries ou même de la suite Office.
+Installation en Anglais Européen
+Installation traditionnelle
+
+Pour finaliser l'installation, il suffit de remettre la localisation sur France dans les paramètres, si Windows ne l'a pas fait automatiquement, et d'installer les logiciels dont vous avez réellement besoin depuis le Microsoft Store.
