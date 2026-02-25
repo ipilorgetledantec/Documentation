@@ -8,8 +8,6 @@ Lors d’une installation *propre* de Windows 11 — c'est-à-dire en téléchar
 
 En sélectionnant **"Anglais (Européen)"**, Windows n'installera pas de logiciels tiers.
 
-> © Les Numériques
-
 Pour ce faire, lors du premier écran de choix de langue, indiquez dans le champ **Format horaire et monétaire** :  
 **“Anglais (Europe)”**.
 
