@@ -21,13 +21,7 @@ Ensuite, choisissez **l’édition Professionnelle**.
 
 Arrivé sur le bureau de Windows 11, vous profiterez d’un menu Démarrer **dépourvu de toute application préinstallée**, qu’il s’agisse de services de SVOD, de messageries ou même de la suite Office.
 
----
 
-### Comparatif
-- **Installation en Anglais Européen** : aucune application préinstallée.  
-- **Installation traditionnelle** : installation de logiciels tiers selon la localisation.
-
----
 
 ### Finalisation
 
