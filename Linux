@@ -1,1 +1,47 @@
+Linux
 
+pour regarder si tout va bien 
+systemctl status
+si il y a des failed faire
+systemctl --failed
+
+
+
+
+
+pour les conteneurs linux dans proxmox
+si une 
+
+si il y a cela apres la commande failed et que la machine à du mal à charger alors faire 
+networking.service échoue au démarrage.
+
+C’est très courant dans les conteneurs LXC Proxmox, car ce service appartient à l’ancien système ifupdown — et souvent, il ne sert plus ou entre en conflit avec systemd-networkd ou netplan.
+
+Bonne nouvelle : ce n’est pas grave, et c’est facile à corriger.
+
+✅ Solution simple : désactiver networking.service
+
+Dans la majorité des conteneurs LXC, ce service ne doit pas démarrer.
+
+À exécuter dans le conteneur :
+
+sudo systemctl disable networking.service
+sudo systemctl mask networking.service
+
+Puis redémarre le conteneur :
+
+sudo reboot
+
+Après reboot, fais :
+
+systemctl --failed
+
+Tu devrais avoir 0 failed.
+
+📌 Pourquoi ça arrive ?
+
+Le conteneur utilise un réseau configuré par Proxmox, donc networking.service n’a rien à faire.
+
+Si /etc/network/interfaces est absent ou minimal, le service échoue.
+
+Beaucoup de templates LXC Debian/Ubuntu ont cette unité activée alors qu’elle ne devrait pas l’être.
