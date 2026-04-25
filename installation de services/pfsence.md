@@ -17,6 +17,10 @@ Avec ta configuration Proxmox actuelle, voici comment configurer **pfSense** pou
 1. Démarre la VM pfSense.
 2. Depuis un navigateur, connecte-toi à l’IP du LAN de pfSense (par défaut, c’est généralement `192.168.1.1` si tu n’as pas changé la configuration initiale).
    - Si tu as déjà configuré pfSense, utilise l’IP que tu as définie pour le LAN.
+   - le Nom d’utilisateur : admin
+            Mot de passe : pfsense
+     sont par default.
+
 
 ---
 
