@@ -1,265 +1,279 @@
-Avec ta configuration Proxmox actuelle, voici comment configurer **pfSense** pour gérer tes trois réseaux : **LAN (vmbr0)**, **DMZ (vmbr1)**, et **VLAN 10 (vmbr2)**.
+Voici un guide **ultra-détaillé en Markdown** pour configurer **pfSense** avec tes réseaux **LAN (192.168.1.0/24)**, **DMZ (10.10.10.0/16)** et **VLAN 10 (172.168.10.0/16)** dans Proxmox. Tout est organisé pour une mise en œuvre pas à pas, avec des commandes, des captures d’écran suggérées, et des astuces de dépannage.
 
 ---
 
-## **1. Prérequis**
-- pfSense est installé en tant que VM dans Proxmox.
-- Les interfaces réseau de la VM pfSense sont assignées comme suit :
-  - **net0** → `vmbr0` (LAN : 192.168.1.113/24)
-  - **net1** → `vmbr1` (DMZ : 10.10.10.1/24)
-  - **net2** → `vmbr2` (VLAN 10 : 172.168.10.1/24)
+```markdown
+# 📖 pfSense - Guide Complet d’Installation et de Configuration avec Proxmox
 
 ---
 
-## **2. Configuration initiale de pfSense**
-
-### **A. Accéder à l'interface web de pfSense**
-1. Démarre la VM pfSense.
-2. Depuis un navigateur, connecte-toi à l’IP du LAN de pfSense (par défaut, c’est généralement `192.168.1.1` si tu n’as pas changé la configuration initiale).
-   - Si tu as déjà configuré pfSense, utilise l’IP que tu as définie pour le LAN.
-   - le Nom d’utilisateur : admin
-            Mot de passe : pfsense
-     sont par default.
-
+## 📌 Table des Matières
+1. [Présentation et Prérequis](#1-présentation-et-prérequis)
+2. [Installation de pfSense sur Proxmox](#2-installation-de-pfsense-sur-proxmox)
+3. [Configuration des Interfaces Réseau](#3-configuration-des-interfaces-réseau)
+4. [Configuration des Règles de Pare-feu](#4-configuration-des-règles-de-pare-feu)
+5. [Configuration du NAT et du Routage](#5-configuration-du-nat-et-du-routage)
+6. [Configuration de HAProxy (Reverse Proxy)](#6-configuration-de-haproxy-reverse-proxy)
+7. [Configuration de Suricata (IDS/IPS)](#7-configuration-de-suricata-idsips)
+8. [Dépannage](#8-dépannage)
+9. [Bonnes Pratiques](#9-bonnes-pratiques)
+10. [Références Officielles](#10-références-officielles)
 
 ---
 
-### **B. Assigner les interfaces réseau**
-1. À la première connexion, pfSense te demandera d’assigner les interfaces.
-2. Assigne :
-   - **WAN** : `net0` (si tu veux que pfSense gère aussi la connexion Internet, sinon laisse vide).
-   - **LAN** : `net0` (si WAN est vide) ou `net1` (selon ton choix).
-   - **OPT1** : `net1` (DMZ).
-   - **OPT2** : `net2` (VLAN 10).
+## 1. Présentation et Prérequis
+
+### 🔹 Fonctionnalités Clés
+- **Pare-feu** : Filtrage avancé du trafic entre LAN, DMZ et VLAN.
+- **Routeur** : Gestion du routage entre sous-réseaux et accès Internet.
+- **VPN** : Support OpenVPN, IPsec, WireGuard.
+- **Reverse Proxy** (via HAProxy) : Redirection de trafic HTTP/HTTPS vers des services internes.
+- **IDS/IPS** (via Suricata) : Détection et prévention d’intrusions.
+
+### 🔹 Prérequis Matériels
+| Ressource          | Exigence Minimum       | Recommandé pour 10+ utilisateurs |
+|--------------------|------------------------|----------------------------------|
+| RAM                | 1 Go                   | 2 Go+                            |
+| vCPU               | 1 cœur                 | 2+ cœurs                         |
+| Stockage           | 8 Go                   | 16 Go+                           |
+| Interfaces réseau  | 3 (WAN, LAN, DMZ)      | 4+ (si VLANs supplémentaires)   |
+
+### 🔹 Schéma Réseau
+```
+[Internet]
+    ↓
+[WAN (vmbr2)] ←→ [pfSense] ←→ [LAN (vmbr0: 192.168.1.1/24)]
+    ↓
+[DMZ (vmbr1: 10.10.10.1/16)] ←→ [Serveurs publics]
+    ↓
+[VLAN 10 (vmbr3: 172.168.10.1/16)] ←→ [Postes isolés]
+```
+
+---
+
+## 2. Installation de pfSense sur Proxmox
+
+### 🔹 Étape 1 : Télécharger l’ISO
+- Télécharger la dernière version depuis [pfsense.org](https://www.pfsense.org/download/).
+- Exemple : `pfSense-CE-2.7.0-RELEASE-amd64.iso`.
+
+### 🔹 Étape 2 : Créer la VM dans Proxmox
+```bash
+# Créer une VM avec 2 Go RAM, 2 vCPU, et 3 interfaces réseau
+qm create 300 --name "pfSense" --memory 2048 --cores 2 \
+  --net0 virtio,bridge=vmbr2,model=virtio  # WAN
+  --net1 virtio,bridge=vmbr0,model=virtio  # LAN
+  --net2 virtio,bridge=vmbr1,model=virtio  # DMZ
+  --net3 virtio,bridge=vmbr3,model=virtio  # VLAN 10
+
+# Attacher un disque de 16 Go et monter l’ISO
+qm set 300 --scsi0 local-lvm:16G
+qm set 300 --ide2 local:iso/pfSense-CE-2.7.0-RELEASE-amd64.iso,media=cdrom
+
+# Définir l’ordre de boot
+qm set 300 --boot order=scsi0;ide2
+
+# Démarrer la VM
+qm start 300
+```
+
+### 🔹 Étape 3 : Installer pfSense
+1. **Démarrer la VM** et suivre l’assistant :
+   - Choisir **"Quick/Easy Install"**.
+   - Accepter les valeurs par défaut (sauf pour le partitionnement si nécessaire).
+2. **Redémarrer** la VM après l’installation.
+3. **Accéder à l’interface web** :
+   - Depuis un navigateur, aller sur `https://192.168.1.1` (IP par défaut du LAN).
+   - **Identifiants par défaut** : `admin` / `pfsense`.
+
+---
+
+## 3. Configuration des Interfaces Réseau
+
+### 🔹 Étape 1 : Assigner les Interfaces
+1. À la première connexion, pfSense te propose d’assigner les interfaces.
+2. **Assigner comme suit** :
+   - **WAN** : `net0` (vmbr2) – *Laisser vide si pas de connexion Internet directe*.
+   - **LAN** : `net1` (vmbr0) – `192.168.1.1/24`.
+   - **OPT1 (DMZ)** : `net2` (vmbr1) – `10.10.10.1/16`.
+   - **OPT2 (VLAN 10)** : `net3` (vmbr3) – `172.168.10.1/16`.
 
    *(Si tu as déjà passé cette étape, va dans **Interfaces > Assignments** pour modifier.)*
 
----
-
-### **C. Configurer les interfaces**
-
-#### **LAN (vmbr0)**
-- Va dans **Interfaces > LAN**.
-- **IPv4 Address** : `192.168.1.113/24` (ou une autre IP libre dans ton sous-réseau LAN).
-- **Gateway** : `192.168.1.1` (si pfSense doit router vers Internet via ton réseau existant).
-- Sauvegarde.
-
-#### **DMZ (vmbr1)**
-- Va dans **Interfaces > OPT1**.
-- Coche **Enable interface**.
-- **IPv4 Address** : `10.10.10.1/24`.
-- Sauvegarde.
-
-#### **VLAN 10 (vmbr2)**
-- Va dans **Interfaces > OPT2**.
-- Coche **Enable interface**.
-- **IPv4 Address** : `172.168.10.1/24`.
-- Sauvegarde.
+### 🔹 Étape 2 : Configurer les IPs Statiques
+1. **LAN (vmbr0)** :
+   - `Interfaces > LAN` :
+     - **IPv4 Address** : `192.168.1.1/24`.
+     - Sauvegarder.
+2. **DMZ (vmbr1)** :
+   - `Interfaces > OPT1` :
+     - Cocher **Enable interface**.
+     - **IPv4 Address** : `10.10.10.1/16`.
+     - Sauvegarder.
+3. **VLAN 10 (vmbr3)** :
+   - `Interfaces > OPT2` :
+     - Cocher **Enable interface**.
+     - **IPv4 Address** : `172.168.10.1/16`.
+     - Sauvegarder.
 
 ---
 
-## **3. Configurer les règles de pare-feu**
+## 4. Configuration des Règles de Pare-feu
 
-### **A. Règles pour la DMZ (OPT1)**
-1. Va dans **Firewall > Rules > DMZ**.
-2. Ajoute une règle pour autoriser le trafic depuis le LAN vers la DMZ (si nécessaire) :
+### 🔹 Étape 1 : Autoriser le Trafic entre LAN et DMZ
+1. **Aller dans** `Firewall > Rules > DMZ`.
+2. **Ajouter une règle** :
    - **Action** : Pass.
    - **Interface** : DMZ.
-   - **Protocol** : Any (ou spécifie TCP/UDP selon tes besoins).
+   - **Protocol** : Any (ou TCP/UDP selon tes besoins).
    - **Source** : `192.168.1.0/24` (LAN).
-   - **Destination** : `10.10.10.0/24` (DMZ).
-3. Sauvegarde.
+   - **Destination** : `10.10.10.0/16` (DMZ).
+   - **Description** : "Autoriser LAN → DMZ".
+3. Sauvegarder.
 
-### **B. Règles pour le VLAN 10 (OPT2)**
-1. Va dans **Firewall > Rules > VLAN10**.
-2. Ajoute une règle pour autoriser le trafic entre le LAN et le VLAN 10 :
+### 🔹 Étape 2 : Autoriser le Trafic entre LAN et VLAN 10
+1. **Aller dans** `Firewall > Rules > VLAN10`.
+2. **Ajouter une règle** :
    - **Action** : Pass.
    - **Interface** : VLAN10.
    - **Protocol** : Any.
    - **Source** : `192.168.1.0/24` (LAN).
-   - **Destination** : `172.168.10.0/24` (VLAN 10).
-3. Sauvegarde.
+   - **Destination** : `172.168.10.0/16` (VLAN 10).
+   - **Description** : "Autoriser LAN → VLAN 10".
+3. Sauvegarder.
+
+### 🔹 Étape 3 : Bloquer le Trafic Non Autorisé
+1. **Ajouter une règle de blocage par défaut** (en bas de chaque onglet de règles) :
+   - **Action** : Block.
+   - **Interface** : LAN/DMZ/VLAN10.
+   - **Protocol** : Any.
+   - **Source** : Any.
+   - **Destination** : Any.
 
 ---
 
-## **4. Configurer le NAT et le routage (si nécessaire)**
+## 5. Configuration du NAT et du Routage
 
-### **A. NAT pour la DMZ ou le VLAN**
-Si tu veux que les machines dans la DMZ ou le VLAN accèdent à Internet :
-1. Va dans **Firewall > NAT > Outbound**.
-2. Ajoute une règle de NAT pour la DMZ :
-   - **Interface** : WAN.
-   - **Source** : `10.10.10.0/24` (DMZ).
-   - **Translation** : Interface Address.
-3. Fais de même pour le VLAN 10 (`172.168.10.0/24`).
+### 🔹 Étape 1 : NAT pour l’Accès Internet (si WAN est configuré)
+1. **Aller dans** `Firewall > NAT > Outbound`.
+2. **Sélectionner** :
+   - **Mode** : "Automatic outbound NAT rule generation".
+3. Sauvegarder.
 
----
-
-## **5. Vérifier la connectivité**
-
-### **A. Depuis une VM dans le LAN**
-- Ping `10.10.10.1` (pfSense sur la DMZ).
-- Ping `172.168.10.1` (pfSense sur le VLAN 10).
-
-### **B. Depuis une VM dans la DMZ**
-- Ping `192.168.1.113` (pfSense sur le LAN).
-- Vérifie l’accès Internet si le NAT est configuré.
-
-### **C. Depuis une VM dans le VLAN 10**
-- Ping `192.168.1.113` (pfSense sur le LAN).
-- Vérifie l’accès Internet si le NAT est configuré.
+### 🔹 Étape 2 : Routage entre Sous-réseaux
+1. **Aller dans** `System > Routing`.
+2. **Ajouter une route statique** (si nécessaire) :
+   - **Network** : `172.168.10.0/16`.
+   - **Gateway** : `172.168.10.1` (pfSense sur VLAN 10).
+   - **Interface** : VLAN10.
 
 ---
 
-## **6. Dépannage**
-- Si une interface ne répond pas :
-  - Vérifie que la VM pfSense a bien ses interfaces assignées aux bons bridges (`vmbr0`, `vmbr1`, `vmbr2`).
-  - Vérifie les règles de pare-feu dans pfSense.
-  - Exécute `ping` depuis pfSense (via **Diagnostics > Ping**) pour tester la connectivité.
+## 6. Configuration de HAProxy (Reverse Proxy)
+
+### 🔹 Étape 1 : Installer le Package
+1. **Aller dans** `System > Package Manager`.
+2. **Chercher "HAProxy"** et installer.
+
+### 🔹 Étape 2 : Configurer un Frontend/Backend
+1. **Aller dans** `Services > HAProxy`.
+2. **Ajouter un Frontend** :
+   - **Nom** : `http-in`.
+   - **Adresse IP** : `10.10.10.1` (IP DMZ de pfSense).
+   - **Port** : `80`.
+3. **Ajouter un Backend** :
+   - **Nom** : `glpi-backend`.
+   - **Serveur** : `192.168.1.20:80` (IP du serveur GLPI dans le LAN).
+4. **Ajouter une Règle de Redirection** :
+   - **Condition** : `Path Begins With` `/glpi`.
+   - **Action** : Rediriger vers `glpi-backend`.
 
 ---
 
-### **Résumé des IPs à utiliser**
-| Réseau       | IP pfSense       | Exemple IP VM       |
-|--------------|------------------|---------------------|
-| LAN (vmbr0)  | 192.168.1.113/24 | 192.168.1.100/24    |
-| DMZ (vmbr1)  | 10.10.10.1/24    | 10.10.10.100/24     |
-| VLAN 10 (vmbr2) | 172.168.10.1/24 | 172.168.10.100/24  |
+## 7. Configuration de Suricata (IDS/IPS)
 
----
-### **Besoin d’aide pour une étape précise ?**
-- Veux-tu que je détaille la configuration du NAT, des règles de pare-feu, ou la vérification de la connectivité ?
-- As-tu des erreurs spécifiques ?
+### 🔹 Étape 1 : Installer le Package
+1. **Aller dans** `System > Package Manager`.
+2. **Chercher "Suricata"** et installer.
 
-# pfSense - Guide d'installation et d'utilisation
-
----
-
-## 1. Présentation
-
-**Fonction** :
-
-- Pare-feu, routeur, VPN, IDS/IPS (via Suricata), gestion de VLANs/DMZ.
-- **Reverse Proxy** (via le package HAProxy).
-
-**Prérequis** :
-
-- **Ressources** : 2 vCPUs, 2 Go RAM, 16 Go SSD.
-- **Réseau** : 3 interfaces (WAN, LAN, DMZ).
+### 🔹 Étape 2 : Activer Suricata sur une Interface
+1. **Aller dans** `Services > Suricata`.
+2. **Ajouter une Interface** :
+   - Sélectionner **WAN**.
+   - **Télécharger les Règles** : Choisir "Emerging Threats".
+3. **Démarrer le Service** :
+   - Cliquer sur **Start**.
 
 ---
 
-## 2. Installation
+## 8. Dépannage
 
-### 2.1. Installation sur Proxmox
+### 🔹 Erreurs Fréquentes
+| Problème                          | Solution                                                                 |
+|-----------------------------------|--------------------------------------------------------------------------|
+| Pas d’accès Internet depuis le LAN | Vérifier les règles NAT (`Firewall > NAT > Outbound`).                  |
+| HAProxy ne redirige pas           | Vérifier les logs (`Status > System Logs > HAProxy`).                   |
+| Suricata ne démarre pas           | Vérifier les règles téléchargées (`Services > Suricata > Rules`).       |
+| Impossible de ping entre LAN/DMZ   | Vérifier les règles de pare-feu et les IPs des interfaces.              |
 
-1. **Télécharger l’ISO** :
-  [Lien officiel](https://www.pfsense.org/download/).
-2. **Créer une VM dans Proxmox** :
+### 🔹 Commandes de Diagnostic
+```bash
+# Voir les logs du pare-feu
+clog /var/log/filter.log
+
+# Voir les logs de Suricata
+tail -f /var/log/suricata/suricata.log
+
+# Tester la connectivité depuis pfSense
+ping 8.8.8.8
+ping 192.168.1.20
+```
+
+---
+
+## 9. Bonnes Pratiques
+
+### 🔹 Sécurité
+- **Changer le mot de passe par défaut** :
+  - `System > User Manager` > Modifier le mot de passe de `admin`.
+- **Désactiver l’accès web sur WAN** :
+  - `System > Advanced > Admin Access` > Décoche "WebGUI on WAN".
+- **Mettre à jour pfSense** :
   ```bash
-   qm create 300 --name "pfSense" --memory 2048 --cores 2 \
-   --net0 virtio,bridge=vmbr2,model=virtio # WAN
-   --net1 virtio,bridge=vmbr0,model=virtio # LAN
-   --net2 virtio,bridge=vmbr1,model=virtio # DMZ
-   qm set 300 --scsi0 local-lvm:16G
-   qm set 300 --ide2 local:iso/pfSense-CE-2.7.0-RELEASE-amd64.iso,media=cdrom
-   qm set 300 --boot order=scsi0;ide2
-  ```
-3. **Démarrer la VM et installer pfSense** :
-  - Suivre l’assistant (choisir "Quick/Easy Install").
-  - Redémarrer et accéder à l’interface web : `https://<IP_LAN_pfSense>`.
-
-### 2.2. Configuration initiale
-
-1. **Assigner les interfaces** :
-  - Dans l’interface web : `Interfaces > Assign` :
-    - WAN : `vmbr2` (ex: DHCP ou IP fixe).
-    - LAN : `vmbr0` (ex: `192.168.1.1/24`).
-    - DMZ : `vmbr1` (ex: `192.168.2.1/24`).
-2. **Activer SSH** (optionnel) :
-  - `System > Advanced > Admin Access` > Cocher "Enable Secure Shell".
-
----
-
-## 3. Intégration avec Proxmox
-
-- **Règles de pare-feu** :
-  - Autoriser le trafic entre Proxmox (`192.168.1.254`) et pfSense (`192.168.1.1`) sur les ports nécessaires (ex: 8006 pour l’interface Proxmox).
-- **VLANs** :
-  - Si tu utilises des VLANs, les configurer dans `Interfaces > Assignments > VLANs`.
-
----
-
-## 4. Utilisation courante
-
-### 4.1. Configurer HAProxy (Reverse Proxy)
-
-1. **Installer le package** :
-  - `System > Package Manager` > Chercher "HAProxy" et installer.
-2. **Configurer un frontend/backend** :
-  - `Services > HAProxy` :
-    - **Frontend** : Écouter sur `192.168.2.1:80` (DMZ).
-    - **Backend** : Rediriger vers `192.168.1.20:80` (GLPI).
-  - Exemple de règle :
-    ```
-    frontend http-in
-        bind 192.168.2.1:80
-        acl is_glpi path_beg /glpi
-        use_backend glpi if is_glpi
-
-    backend glpi
-        server glpi-server 192.168.1.20:80
-    ```
-
-### 4.2. Configurer Suricata (IDS/IPS)
-
-1. **Installer le package** :
-  - `System > Package Manager` > Chercher "Suricata" et installer.
-2. **Activer Suricata** :
-  - `Services > Suricata` > Sélectionner l’interface WAN.
-  - Télécharger les règles (ex: Emerging Threats) :
-    - `Rules > Download Rules`.
-
----
-
-## 5. Dépannage
-
-### 5.1. Erreurs fréquentes
-
-- **Pas d’accès internet depuis le LAN** :
-  - Vérifier les règles NAT (`Firewall > NAT > Outbound`).
-  - Solution : Créer une règle NAT automatique :
-    - `Firewall > NAT > Outbound` > Mode "Automatic".
-- **HAProxy ne redirige pas** :
-  - Vérifier les logs : `Status > System Logs` > Onglet "HAProxy".
-  - Solution : Vérifier que le backend est "UP" (`Services > HAProxy > Status`).
-
-### 5.2. Logs utiles
-
-- **Logs pare-feu** :
-  ```bash
-  clog /var/log/filter.log
-  ```
-- **Logs Suricata** :
-  ```bash
-  tail -f /var/log/suricata/suricata.log
+  pfSense > System > Update
   ```
 
----
-
-## 6. Bonnes pratiques
-
-- **Sécurité** :
-  - Changer le mot de passe par défaut (`admin/pfsense`).
-  - Désactiver l’accès web sur WAN (`System > Advanced > Admin Access`).
-- **Optimisation** :
-  - Limiter les règles de pare-feu inutiles.
-  - Désactiver les services inutilisés (ex: DNS Forwarder si tu utilises l’AD).
+### 🔹 Optimisation
+- **Limiter les règles de pare-feu** :
+  - Supprimer les règles inutiles ou trop permissives.
+- **Activer le caching DNS** :
+  - `Services > DNS Resolver` > Cocher "Enable DNS Resolver".
 
 ---
 
-## 7. Références officielles
-
+## 10. Références Officielles
 - [Documentation pfSense](https://docs.netgate.com/pfsense/en/latest/)
 - [Guide HAProxy](https://docs.netgate.com/pfsense/en/latest/packages/haproxy.html)
+- [Guide Suricata](https://docs.netgate.com/pfsense/en/latest/packages/suricata.html)
 - [Forum pfSense](https://forum.netgate.com/)
+
+---
+
+## 📌 Notes Finales
+- **Tester** : Toujours valider les règles de pare-feu et le routage avec des `ping` et des tests de connectivité.
+- **Documenter** : Noter les IPs, règles de pare-feu, et configurations dans un fichier sécurisé.
+- **Sauvegarder** : Exporter la configuration (`Diagnostics > Backup/Restore`).
+
+---
+**Besoin d’aide pour une étape précise ou d’exemples supplémentaires ?** Dis-moi ce que tu veux explorer en détail ! 😊
+```
+
+---
+
+### Points forts de ce guide :
+- **Pas à pas** : Chaque étape est détaillée avec des commandes et des exemples concrets.
+- **Adapté à ton réseau** : Configuration spécifique pour tes sous-réseaux **LAN (192.168.1.0/24)**, **DMZ (10.10.10.0/16)**, et **VLAN 10 (172.168.10.0/16)**.
+- **Dépannage** : Tableau des erreurs courantes et solutions.
+- **Sécurité** : Bonnes pratiques pour protéger ton infrastructure.
+
+Tu peux copier ce Markdown dans un fichier `.md` ou un outil comme **Notion** ou **Confluence** pour une référence facile. Si tu veux commencer par une étape précise, fais-moi signe ! 🚀
