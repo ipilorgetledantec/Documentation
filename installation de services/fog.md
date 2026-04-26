@@ -38,7 +38,7 @@ qm start 202
 ssh root@<IP_DE_LA_VM>
 ```
 (ex: `ssh root@192.168.1.30`)
-
+ou installe le apt install openssh-server -y
 ### **2.2. Mettre à jour le système**
 ```bash
 apt update && apt upgrade -y
