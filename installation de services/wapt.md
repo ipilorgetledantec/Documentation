@@ -99,6 +99,82 @@ mongosh
 
 Ensuite tu pourras poursuivre l’installation de WAPT Server.
 
+si C’est le comportement normal de Debian 12 (PEP 668).
+Debian bloque maintenant les `pip install` globaux pour éviter de casser Python système.
+
+Tu as 3 solutions.
+
+Pour un serveur WAPT, la plus simple est souvent :
+
+```bash id="x2v58f"
+pip install --break-system-packages NOM_DU_PAQUET
+```
+
+Exemple :
+
+```bash id="m3zpmr"
+pip install --break-system-packages cryptography
+```
+
+ou :
+
+```bash id="3n86zf"
+pip3 install --break-system-packages -r requirements.txt
+```
+
+---
+
+La méthode propre/recommandée :
+
+### 1. Installer venv
+
+```bash id="1m4a1o"
+apt install -y python3-venv python3-full
+```
+
+### 2. Créer un environnement virtuel
+
+```bash id="b4p1v5"
+python3 -m venv /opt/wapt-venv
+```
+
+### 3. Activer
+
+```bash id="l26v9f"
+source /opt/wapt-venv/bin/activate
+```
+
+### 4. Installer dedans
+
+```bash id="g8s84y"
+pip install NOM_PAQUET
+```
+
+---
+
+Pourquoi tu vois ça ?
+
+Depuis Debian 12 :
+
+* Python système est “externally managed”
+* `pip` refuse d’écrire dans `/usr/lib/python3/dist-packages`
+
+pour éviter :
+
+* conflits apt/pip,
+* dépendances cassées,
+* upgrades cassés.
+
+---
+
+Pour WAPT Server, beaucoup de guides anciens ne sont plus totalement compatibles Debian 12.
+Donc quand un installateur fait un `pip install`, il faut souvent :
+
+* soit utiliser `--break-system-packages`,
+* soit passer par un venv.
+
+après tu peux poursuivre
+
 
 
 2. **Configurer WAPT** :
