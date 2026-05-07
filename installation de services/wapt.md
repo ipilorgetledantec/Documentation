@@ -37,6 +37,77 @@ pct create 203 local:vztmpl/ubuntu-22.04-standard_22.04-1_amd64.tar.gz \
    apt update && apt install -y python3 python3-pip mongodb
    pip3 install waptserver
   ```
+si mongodb ne s'installe pas :
+C’est normal sur Debian 12 : le paquet `mongodb` n’existe plus dans les dépôts officiels Debian à cause des problèmes de licence MongoDB.
+
+Pour WAPT Server sur Debian 12, il faut généralement installer MongoDB depuis le dépôt officiel MongoDB ou utiliser la version supportée par WAPT.
+
+Vérifie d’abord quelle version de WAPT tu installes, car les versions récentes utilisent parfois PostgreSQL au lieu de MongoDB.
+
+Tu peux vérifier la doc officielle :
+[Documentation WAPT](https://www.wapt.fr/fr/doc/?utm_source=chatgpt.com)
+
+Si ton WAPT nécessite MongoDB, voici la méthode correcte pour Debian 12.
+
+### 1. Ajouter la clé MongoDB
+
+```bash
+apt install -y gnupg curl
+
+curl -fsSL https://pgp.mongodb.com/server-7.0.asc | \
+gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg \
+--dearmor
+```
+
+### 2. Ajouter le dépôt MongoDB 7
+
+```bash
+echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/7.0 main" \
+> /etc/apt/sources.list.d/mongodb-org-7.0.list
+```
+
+### 3. Mettre à jour les dépôts
+
+```bash
+apt update
+```
+
+### 4. Installer MongoDB
+
+```bash
+apt install -y mongodb-org
+```
+
+### 5. Démarrer MongoDB
+
+```bash
+systemctl enable mongod
+systemctl start mongod
+```
+
+### 6. Vérifier
+
+```bash
+systemctl status mongod
+```
+
+et :
+
+```bash
+mongosh
+```
+
+Ensuite tu pourras poursuivre l’installation de WAPT Server.
+
+Le problème venait donc simplement du fait que :
+
+```bash
+apt install mongodb
+```
+
+
+
+
 2. **Configurer WAPT** :
   ```bash
    wapt-get setup --server-url=http://192.168.1.40/wapt
