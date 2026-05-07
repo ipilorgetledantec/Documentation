@@ -99,13 +99,6 @@ mongosh
 
 Ensuite tu pourras poursuivre l’installation de WAPT Server.
 
-Le problème venait donc simplement du fait que :
-
-```bash
-apt install mongodb
-```
-
-
 
 
 2. **Configurer WAPT** :
