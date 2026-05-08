@@ -77,10 +77,10 @@ qm start 100
 ## 3. Configuration d’Active Directory et DNS
 
 ### 🔹 Étape 1 : Installer le Rôle AD
-1. **Ouvrir PowerShell en tant qu’administrateur** :
-   ```powershell
-   Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
-   ```
+
+c'est le service de domaine ad
+1 en haut Gérer>ajouter des roles
+puis faire suivant suivant suivant et vous le verrez
 2. **Promouvoir le serveur en contrôleur de domaine** :
    ```powershell
    Install-ADDSForest -DomainName "mon-domaine.local" -SafeModeAdministratorPassword (ConvertTo-SecureString "VotreMotDePasse" -AsPlainText -Force)
