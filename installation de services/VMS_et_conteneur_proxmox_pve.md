@@ -73,18 +73,8 @@ puis next et finish
 
 lancer la vm.
 
-faire suivant pour la configuration de la langue sauf si ce n est pas fr.
-suivant et mettre je n ai pas la clé.
-prendre edition 
 
-partie disk : 
-- click sur load driver
-- parcourir
-- click sur le premier lecteur
-- click vioscsi
-- click win11
-- click amd64
-- fairre ok
+
 
 
 conteneur :
