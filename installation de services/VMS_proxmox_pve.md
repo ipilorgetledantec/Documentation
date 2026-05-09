@@ -36,8 +36,18 @@ partie disk :
 - click amd64
 - fairre ok
 
-selectionner le disk et faire installer
+selectionner le disk et faire installer.
 
+Une fois tout installer vous allez arriver sur la partie pilote :
+- selectionner le lecteur cd sans rentrer dedans
+- puis clicker sur selectionner le dossier
+
+suivant mettre non à tout.
+
+Une fois sur le bureau :
+- aller sur le lecteur virtio
+- descendre et selectionner virtio-win-gtX64 et  executer
+- pareil pour win guest tool
 
 
 
