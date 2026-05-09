@@ -123,3 +123,7 @@
 7. **Valider** avec **Next** puis **Finish**
 
 ---
+
+
+### **Une fois lancé, il peut être un peu long à démarrer**
+
