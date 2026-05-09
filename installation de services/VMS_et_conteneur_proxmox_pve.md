@@ -1,110 +1,125 @@
-installation vms proxmox pve
+# Installation de VMs et CT sur Proxmox VE
 
+---
 
+## 🖥️ **Installation d'une VM Windows**
 
+### **Prérequis**
+- ISO de **Windows 11**
+- ISO supplémentaire : **`virtio-win.iso`** (à télécharger avant la configuration)
 
+---
 
+### **Configuration dans Proxmox**
+1. **Créer une nouvelle VM**
+2. **Onglet Général**
+   - Définir un **ID**, un **nom**, et un **pool**
+3. **Onglet OS**
+   - Sélectionner l'ISO de **Windows 11**
+   - Type : **Microsoft Windows**
+   - Ajouter un **pilote virtio** :
+     - Cliquer sur **"Add additional VirtIO driver"**
+     - Sélectionner **`virtio-win.iso`** dans **ISO Image**
+4. **Onglet System**
+   - Configurer les **storages**
+   - Cocher **QEMU Guest Agent**
+5. **Onglet Disks**
+   - Taille : **64 Go** (pour éviter les problèmes)
+   - Cocher **Discard**
+6. **Onglet CPU**
+   - **2 cœurs**
+   - Type : **Host**
+7. **Onglet Memory**
+   - **4 Go** de RAM
+8. **Valider** avec **Next** puis **Finish**
 
-vms windows :
+---
 
-Prérequis :
-iso de win 11
-iso de supplément : virtio-win.iso
+### **Installation de Windows 11**
+1. **Lancer la VM**
+2. **Configuration initiale**
+   - Suivre les étapes jusqu'à la sélection de la **langue** (choisir **Français** si nécessaire)
+   - Sélectionner **"Je n'ai pas de clé de produit"**
+   - Choisir l'**édition** souhaitée
+3. **Partitionnement du disque**
+   - Cliquer sur **"Charger le pilote"**
+   - Parcourir → Sélectionner le **premier lecteur CD**
+   - Aller dans :
+     - **`vioscsi`** → **`win11`** → **`amd64`**
+   - Valider avec **OK**
+   - Sélectionner le disque et lancer l'**installation**
+4. **Installation des pilotes**
+   - Une fois l'installation terminée, sur l'écran des **pilotes** :
+     - Sélectionner le **lecteur CD** (sans y entrer)
+     - Cliquer sur **"Sélectionner le dossier"**
+     - Répondre **"Non"** à toutes les questions suivantes
+5. **Finalisation**
+   - Sur le **bureau** :
+     - Ouvrir le lecteur **VirtIO**
+     - Descendre et sélectionner **`virtio-win-guest-tools`** (version **GTx64**)
+     - Exécuter l'installation
+     - Répéter pour **Win Guest Tools**
 
+---
 
-sur proxmox :
-- créé vm dans proxmox puis
-- dans l'onglet general mettre un id, un nom, un pool
-- dans l'onglet os : mettre iso win 11, type = microsoft windows puis add aditional visio driver (allez la télécharger avant la configuration de la machine), dans iso image mettre le virtio-win.iso 
-- dans l'onglet system : mettre les storages et cocher qemu agent
-- dans l'onglet disks : size = 64g pour ne pas etre embété, cocher discard
-- dans l'onglet cpu : 2 coeurs et type hosts
-- dans l'onglet memory : 4g
-puis next et finish
+---
 
-lancer la vm.
+## 🐧 **Installation d'une VM Linux**
 
-faire suivant pour la configuration de la langue sauf si ce n est pas fr.
-suivant et mettre je n ai pas la clé.
-prendre edition 
+### **Prérequis**
+- ISO de **Debian 12** (ou autre distribution Linux)
 
-partie disk : 
-- click sur load driver
-- parcourir
-- click sur le premier lecteur
-- click vioscsi
-- click win11
-- click amd64
-- fairre ok
+---
 
-selectionner le disk et faire installer.
+### **Configuration dans Proxmox**
+1. **Créer une nouvelle VM**
+2. **Onglet Général**
+   - Définir un **ID**, un **nom**, et un **pool**
+3. **Onglet OS**
+   - Sélectionner l'ISO de **Debian 12** (ou autre)
+   - Type : **Linux**
+4. **Onglet System**
+   - Configurer les **storages**
+   - Cocher **QEMU Guest Agent**
+5. **Onglet Disks**
+   - Taille : **À adapter selon les recommandations** de la distribution
+6. **Onglet CPU**
+   - Nombre de cœurs : **À adapter selon les recommandations**
+7. **Onglet Memory**
+   - RAM : **À adapter selon les recommandations**
+8. **Valider** avec **Next** puis **Finish**
 
-Une fois tout installer vous allez arriver sur la partie pilote :
-- selectionner le lecteur cd sans rentrer dedans
-- puis clicker sur selectionner le dossier
+---
+### **Installation de Linux**
+1. **Lancer la VM**
+2. Suivre les étapes d'installation standard de la distribution choisie.
 
-suivant mettre non à tout.
+---
 
-Une fois sur le bureau :
-- aller sur le lecteur virtio
-- descendre et selectionner virtio-win-gtX64 et  executer
-- pareil pour win guest tool
+---
 
+## 📦 **Création d'un conteneur (CT) Linux**
 
+### **Prérequis**
+- **Template de conteneur** :
+  - Aller dans **Datacenter** > **Nom du serveur Proxmox** > **local** (pas **lvm**) > **ct_templates** > **templates**
+  - Choisir le **template** correspondant à votre OS (ex: Debian, Ubuntu, etc.)
+  - *Les templates "TurnKey" sont des CT prêts à l'emploi.*
 
+---
 
-vm linux :
+### **Configuration dans Proxmox**
+1. **Créer un nouveau CT**
+2. **Onglet Général**
+   - Définir un **ID**, un **nom**, un **pool**, et un **mot de passe**
+3. **Onglet Template**
+   - Sélectionner le **template** téléchargé précédemment
+4. **Onglet Disks**
+   - Taille : **À adapter selon les besoins**
+5. **Onglet CPU**
+   - Nombre de cœurs : **À adapter selon les besoins**
+6. **Onglet Memory**
+   - RAM : **À adapter selon les besoins**
+7. **Valider** avec **Next** puis **Finish**
 
-
-
-Prérequis :
-iso deb 12 ou autre
-
-
-sur proxmox :
-- créé vm dans proxmox puis
-- dans l'onglet general mettre un id, un nom, un pool
-- dans l'onglet os : mettre iso deb 12, type = linux
-- dans l'onglet system : mettre les storages et cocher qemu agent 
-- dans l'onglet disks : size = à voir en foncton des recommandations
-- dans l'onglet cpu : à voir en foncton des recommandations
-- dans l'onglet memory : à voir en foncton des recommandations
-puis next et finish
-
-lancer la vm.
-
-
-
-
-
-conteneur :
-
-Que des conteneurs avec un noyau linux.
-
-
-prérequis :
-
-allez sur datacenter>le_nom_pve_du_serv>local (pas le lvlm)>ct_templates>templates
-choisir votre os.
-Les turquey sont des ct près à l'emploi.
-
-
-sur proxmox : 
-
-créé ct :
-- dans l'onglet general mettre un id, un nom, un pool,mdp
-- dans l'onglet template : mettre le conteneur précédement installer
-- dans l'onglet disks : size = à voir en foncton des recommandations
-- dans l'onglet cpu : à voir en foncton des recommandations
-- dans l'onglet memory : à voir en foncton des recommandations
-puis next et finish
-
-
-
-
-
-
-
-
-
-
+---
