@@ -114,7 +114,7 @@ Voici un **guide complet et détaillé** pour installer **Jellyfin** et **Mopidy
    - Clique sur **Finish**.
 
 ---
-### **2.3. Créer le conteneur LXC pour Mopidy + Iris + Snapcast**
+### **2.3. Créer le conteneur LXC pour Volumio ou Mopidy + Iris + Snapcast**
 1. Clique à nouveau sur **Create CT**.
 2. **Paramètres de base** :
    - **CT ID** : `101`.
