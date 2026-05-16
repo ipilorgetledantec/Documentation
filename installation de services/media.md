@@ -187,8 +187,8 @@ Voici un **guide complet et détaillé** pour installer **Jellyfin** et **Mopidy
 4. Clique sur **OK**.
 5. **Répète l’opération** pour monter :
    - **Source** : `/mnt/pve/nas/config/jellyfin` → **Destination** : `/etc/jellyfin`.
-pct set 100 -mp0 /mnt/pve/nas/media,mp=/srv/media,options=rw,noatime
-pct set 100 -mp1 /mnt/pve/nas/config/jellyfin,mp=/etc/jellyfin,options=rw,noatime
+
+
 ---
 ### **3.2. Monter les dossiers dans le conteneur Mopidy (CT 101)**
 1. Sélectionne le conteneur **mopidy (101)**.
@@ -214,6 +214,17 @@ pct set 100 -mp1 /mnt/pve/nas/config/jellyfin,mp=/etc/jellyfin,options=rw,noatim
 ---
 ---
 ---
+sinon en ligne de commandes :
+nano /etc/pve/lxc/100.conf
+pct set 100 -mp0 /mnt/pve/nas/media,mp=/srv/media,options=rw,noatime
+pct set 100 -mp1 /mnt/pve/nas/config/jellyfin,mp=/etc/jellyfin,options=rw,noatime
+et le faire pour tous
+mp0: /mnt/pve/nas/media/musique,mp=/srv/musique,options=rw,noatime
+mp1: /mnt/pve/nas/config/mopidy,mp=/etc/mopidy,options=rw,noatime
+et enfin
+mp0: /mnt/pve/nas/config/nginx,mp=/etc/nginx/proxy,options=rw,noatime
+
+
 
 ## **🚀 Étape 4 : Installer et configurer Jellyfin (CT 100)**
 ### **4.1. Accéder au conteneur Jellyfin en console**
