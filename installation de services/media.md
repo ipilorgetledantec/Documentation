@@ -187,7 +187,8 @@ Voici un **guide complet et détaillé** pour installer **Jellyfin** et **Mopidy
 4. Clique sur **OK**.
 5. **Répète l’opération** pour monter :
    - **Source** : `/mnt/pve/nas/config/jellyfin` → **Destination** : `/etc/jellyfin`.
-
+pct set 100 -mp0 /mnt/pve/nas/media,mp=/srv/media,options=rw,noatime
+pct set 100 -mp1 /mnt/pve/nas/config/jellyfin,mp=/etc/jellyfin,options=rw,noatime
 ---
 ### **3.2. Monter les dossiers dans le conteneur Mopidy (CT 101)**
 1. Sélectionne le conteneur **mopidy (101)**.
