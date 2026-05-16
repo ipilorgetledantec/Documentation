@@ -178,7 +178,7 @@ Voici un **guide complet et détaillé** pour installer **Jellyfin** et **Mopidy
 ## **📁 Étape 3 : Configurer les bind mounts (montages des dossiers)**
 ### **3.1. Monter les dossiers dans le conteneur Jellyfin (CT 100)**
 1. Dans l’interface Proxmox, sélectionne le conteneur **jellyfin (100)**.
-2. Clique sur **Options > Mount Points**.
+2. Clique sur **Options >ressources**.
 3. Clique sur **Add**.
    - **Storage** : Sélectionne `nas` (ou ton stockage).
    - **Source** : `/mnt/pve/nas/media` (dossier source sur Proxmox).
