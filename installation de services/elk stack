@@ -136,6 +136,29 @@ configuration
 
 Le fichier de configuration de kibana se retrouve dans /etc/kibana/kibana.yml . Si jamais vous avez modifié avec ce fichier, assurez-vous juste que la configuration kibana possède les bonnes informations pour communiquer avec Elasticsearch :
 
+Exemple minimal Kibana
+
+/etc/kibana/kibana.yml
+
+Si Elasticsearch est sur la même machine :
+
+server.port: 5601
+server.host: "0.0.0.0"
+
+elasticsearch.hosts: ["https://IPPOSTE:9200"]
+
+elasticsearch.username: "kibana_system"
+elasticsearch.password: "MOT_DE_PASSE"
+
+# Si certificat autosigné
+elasticsearch.ssl.verificationMode: none
+
+Si tu n'as pas activé TLS sur Elasticsearch :
+
+elasticsearch.hosts: ["http://IPPOSTE:9200"]
+
+Le paramètre server.host: "0.0.0.0" est indispensable pour accéder à Kibana depuis une autre machine. Par défaut Kibana écoute seulement sur localhost.
+
 elasticsearch.hosts: ["http://localhost:9200"]
 
 Lancement et test
