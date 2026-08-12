@@ -150,7 +150,7 @@ services:
       - SLSKD_REMOTE_CONFIGURATION=true
       - DOWNLOADS_DIR=/downloads
       - SLSKD_USERNAME=IP
-      - SLSKD_PASSWORD=Lol130Mdr/5=%
+      - SLSKD_PASSWORD=password
 
     restart: unless-stopped
 
