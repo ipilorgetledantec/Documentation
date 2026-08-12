@@ -113,24 +113,47 @@ sudo nano docker-compose.yml
 Colle :
 
 ```yaml
+
 services:
+
   navidrome:
     image: deluan/navidrome:latest
     container_name: navidrome
-    user: 1000:1000
     ports:
       - "4533:4533"
     restart: unless-stopped
-
-    environment:
-      ND_SCANSCHEDULE: 1h
-      ND_LOGLEVEL: info
-      ND_SESSIONTIMEOUT: 24h
-      ND_BASEURL: ""
-
     volumes:
       - /srv/navidrome/data:/data
-      - /srv/music:/music:ro
+      - /media/ivanP:/music
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    ports:
+      - "8686:8686"
+    volumes:
+      - /srv/lidarr/config:/config
+      - /media/ivanP:/music
+      - /srv/downloads:/downloads
+    restart: unless-stopped
+
+  slskd:
+    image: slskd/slskd:latest
+    container_name: slskd
+    ports:
+      - "5030:5030"
+    volumes:
+      - /srv/slskd:/app
+      - /srv/downloads:/downloads
+      - "/media/ivanP/musique et souvenir/musiques/musics:/music"
+    environment:
+      - SLSKD_REMOTE_CONFIGURATION=true
+      - DOWNLOADS_DIR=/downloads
+      - SLSKD_USERNAME=IP
+      - SLSKD_PASSWORD=Lol130Mdr/5=%
+
+    restart: unless-stopped
+
 ```
 
 Sauvegarder :
