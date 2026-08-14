@@ -47,6 +47,7 @@ apt install -y sudo wget gnupg2 ca-certificates lsb-release debian-archive-keyri
 
 ### **2.3. Ajouter l’utilisateur `foguser` au sudoers**
 ```bash
+adduser foguser
 usermod -aG sudo foguser
 ```
 
@@ -66,7 +67,7 @@ sudo apt install -y apache2 mariadb-server php php-cli php-gd php-curl php-mysql
 
 ### **3.2. Configurer MariaDB**
 ```bash
-sudo mysql_secure_installation
+sudo mariadb-secure-installation
 ```
 - Répondre **Y** à toutes les questions (sauf "Change the root password?" si tu as déjà défini un mot de passe).
 
