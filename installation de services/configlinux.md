@@ -46,7 +46,12 @@ nameserver 1.1.1.1
 ```
 
 faire les mises à jour de apt update et apt upgrade -y
+``` bash 
 
  apt update && apt upgrade -y
+
+
+```
+
 
 
