@@ -69,3 +69,74 @@ parametre avance renommage
 
 ![alt text](image-5.png)
 
+sur win serv 1
+terminer le dhcp 
+![alt text](image-6.png)
+
+faire ok ok terminer la conf
+
+
+cliquer dhcp faire une étendue 
+
+![alt text](image-7.png)
+
+![alt text](image-8.png)
+
+
+![alt text](image-9.png)
+suivant
+mettre un 1 pour les jours
+oui
+![alt text](image-10.png)
+![alt text](image-11.png)
+
+puis suivant suivant
+
+dans l annuiaire
+
+faire une uo
+
+
+![alt text](image-12.png)
+
+prendre une machine client
+![alt text](image-13.png)
+
+
+
+win serv 2
+
+![alt text](image-14.png)
+
+et changer le nom et mdp par celui du domaine
+puis suivant et installer
+redemare
+
+puis dhcp 
+tout ok 
+
+win 1 
+
+confi dhcp
+
+clic droit dhcp
+
+![alt text](image-15.png)
+
+gerer les servs
+
+puis ajouter si le serv n apparait pas
+
+![alt text](image-16.png)
+
+![alt text](image-17.png)
+
+![alt text](image-18.png)
+mdp rootsio201
+puis ok ok ok 
+
+
+![alt text](image-19.png)
+![alt text](image-20.png)
+
+
