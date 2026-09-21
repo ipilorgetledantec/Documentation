@@ -3,6 +3,6 @@
 
 ### 1
 
-``` bash 
+``` powershell
 nano /etc/bind/named.conf.options
 ```
