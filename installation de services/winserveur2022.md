@@ -140,3 +140,9 @@ puis ok ok ok
 ![alt text](image-20.png)
 
 
+CLIQUER DROIT WIN et répliquer le controlleur de domaine 
+
+![alt text](image-21.png)
+
+
+
