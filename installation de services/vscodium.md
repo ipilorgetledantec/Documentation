@@ -140,6 +140,7 @@ cd "$HOME\Documents"
 4. Clonez le dépôt :
 
 ```powershell
+$env:home="C:\Users\ipilorget\"
 git clone git@github.com:VOTRE_COMPTE/documentation-bts-sio.git
 ```
 
